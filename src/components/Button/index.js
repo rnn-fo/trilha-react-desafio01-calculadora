@@ -2,8 +2,9 @@
 import { ButtonContainer } from './styles';
 
 const Button = ({label, onClick}) => {
+    const style = label === '⌫'? {fontSize:23+'px'}:{}
     return (
-      <ButtonContainer onClick={onClick} type="button">
+      <ButtonContainer style={style} onClick={onClick} type="button">
        {label}
       </ButtonContainer>
     );

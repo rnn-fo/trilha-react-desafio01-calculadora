@@ -14,6 +14,10 @@ export const Container = styled.div`
 export const Content = styled.div`
     background-color: #FFFFFF;
     width: 50%;
+    display:grid;
+    grid-template-areas: 
+        "input textarea"
+        "button textarea"
 `
 
 export const Row = styled.div`
@@ -26,7 +30,5 @@ export const Row = styled.div`
 export const Column = styled.div`
     display:flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
 `
 
