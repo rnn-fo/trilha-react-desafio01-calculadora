@@ -2,24 +2,38 @@
 import Input from './components/Input';
 import Button from './components/Button';
 import Textarea from './components/Textarea';
-
 import { Container, Content, Row,Column} from './styles';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
+import { create, all } from 'mathjs'
+
+const config = { }
+const math = create(all, config)
 
 
 const App = () => {
   const [history, setHistory] = useState('')
-  const [currentNumber, setCurrentNumber] = useState('0');
-  const [operation, setOperation] = useState('');
+  const [currentNumber, setCurrentNumber] = useState('0')
+  const [currentValueMemory, setCurrentValueMemory] = useState('')
+
+  useEffect(() => {
+    if(currentValueMemory.includes('sqrt')){
+      handleEqual()
+    }
+  }, [currentValueMemory]);
 
   const handleOnClear = () => {
     setCurrentNumber('0')
-    setOperation('')
+    setCurrentValueMemory('')
     setHistory('')
   };
 
+  const handleBackspaceNegativeNumber = () =>{
+    const numberBackspace = currentNumber.includes('-') && currentNumber.length > 2 ? currentNumber.substring(0, currentNumber.length - 1) : '0'
+    return numberBackspace
+  }
+
   const handleBackspace = () =>{
-    const numberBackspace = currentNumber !== '0' && currentNumber.length > 1 && !currentNumber.includes('-')? currentNumber.substring(0, currentNumber.length - 1) : '0'
+    const numberBackspace = currentNumber !== '0' && currentNumber.length > 1 && !currentNumber.includes('-')? currentNumber.substring(0, currentNumber.length - 1) : handleBackspaceNegativeNumber()
     setCurrentNumber(numberBackspace)
   }
 
@@ -29,23 +43,39 @@ const App = () => {
   }
 
   const handleAdd = (element) => {
-
-    element === "," && currentNumber.includes(element) ? element = '' : 
-      currentNumber === '0' && element !== ","? setCurrentNumber(element) : setCurrentNumber(`${currentNumber}${element}`)
+    element === "." && currentNumber.includes(element) ? element = '' : 
+      currentNumber === '0' && element !== "."? setCurrentNumber(element) : setCurrentNumber(`${currentNumber}${element}`)
   }
 
   const handleOperation = (element) =>{
-    operation === '' ? setOperation(element) : setOperation('')
+
+    if(currentNumber !== '0'){
+      if (element.includes('sqrt') && currentValueMemory === ''){
+        setCurrentValueMemory(`${element}(${currentNumber})`)
+      }
+      else if (currentValueMemory === ''){
+        currentNumber.includes('-')?setCurrentValueMemory(`(${currentNumber})${element}`):setCurrentValueMemory(`${currentNumber}${element}`)
+      }
+      else{
+        handleEqual()
+      }
+    }    
   }
 
   const handleEqual = () => {
-    if(operation !== ''){
-      return
+    if(currentValueMemory.includes('sqrt')){
+      const calculate = math.evaluate(currentValueMemory).toString()
+      currentValueMemory.includes('-')?setHistory(previousValue => `${previousValue}\n${currentValueMemory.replace('sqrt(','√(')}=${calculate}`):setHistory(previousValue => `${previousValue}\n${currentValueMemory.replace('sqrt(','√').replace(')','')}=${calculate}`)
+    }
+    else if(currentValueMemory.length > 1){
+      const calculate = currentNumber.includes('-')?math.evaluate(`${currentValueMemory}(${currentNumber})`).toString():math.evaluate(`${currentValueMemory}${currentNumber}`).toString()
+      currentNumber.includes('-')?setHistory(previousValue => `${previousValue}\n${currentValueMemory}(${currentNumber})=${calculate}`):setHistory(previousValue => `${previousValue}\n${currentValueMemory}${currentNumber}=${calculate}`)
+      setCurrentNumber(calculate)
     }
     else if (currentNumber !== '0'){
       setHistory(previousValue => `${previousValue}\n${currentNumber}=${currentNumber}`)
     }
-
+    setCurrentValueMemory('')
   }
 
   return (
@@ -56,7 +86,7 @@ const App = () => {
           <Button label="C" onClick={() => handleOnClear()}/>
           <Row>
             <Button label="x²" onClick={() => handleOperation('^')}/>
-            <Button label="²√" onClick={() => handleOperation('√')}/>
+            <Button label="²√" onClick={() => handleOperation('sqrt')}/>
             <Button label="÷" onClick={() => handleOperation('/')}/>
             <Button label="⌫" onClick={() => handleBackspace()}/>
           </Row>
@@ -81,7 +111,7 @@ const App = () => {
           <Row>
             <Button label="+/-" onClick={() => handleSignal()}/>
             <Button label="0" onClick={() => handleAdd('0')}/>
-            <Button label="," onClick={() => handleAdd(',')}/>
+            <Button label="." onClick={() => handleAdd('.')}/>
             <Button label="=" onClick={() => handleEqual()}/>
           </Row>
         </Column>
