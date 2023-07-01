@@ -1,6 +1,7 @@
 
 import Input from './components/Input';
 import Button from './components/Button';
+import Label from './components/Label';
 import Textarea from './components/Textarea';
 import { Container, Content, Row,Column} from './styles';
 import { useState,useEffect } from 'react';
@@ -55,6 +56,7 @@ const App = () => {
       }
       else if (currentValueMemory === ''){
         currentNumber.includes('-')?setCurrentValueMemory(`(${currentNumber})${element}`):setCurrentValueMemory(`${currentNumber}${element}`)
+        setCurrentNumber('0')
       }
       else{
         handleEqual()
@@ -65,6 +67,7 @@ const App = () => {
   const handleEqual = () => {
     if(currentValueMemory.includes('sqrt')){
       const calculate = math.evaluate(currentValueMemory).toString()
+      setCurrentNumber(calculate)
       currentValueMemory.includes('-')?setHistory(previousValue => `${previousValue}\n${currentValueMemory.replace('sqrt(','√(')}=${calculate}`):setHistory(previousValue => `${previousValue}\n${currentValueMemory.replace('sqrt(','√').replace(')','')}=${calculate}`)
     }
     else if(currentValueMemory.length > 1){
@@ -82,6 +85,7 @@ const App = () => {
     <Container>
       <Content>
         <Column>
+          <Label label={currentValueMemory}/>
           <Input value={currentNumber}/>
           <Button label="C" onClick={() => handleOnClear()}/>
           <Row>

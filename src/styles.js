@@ -10,12 +10,12 @@ export const Container = styled.div`
     justify-content: center;
 `
 
-
 export const Content = styled.div`
     background-color: #FFFFFF;
     width: 50%;
     display:grid;
-    grid-template-areas: 
+    grid-template-areas:
+        "label textarea" 
         "input textarea"
         "button textarea"
 `
